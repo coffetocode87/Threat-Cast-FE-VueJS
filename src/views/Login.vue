@@ -1,15 +1,24 @@
 <template>
-  <div class="login">
-    <h2>Threat Dashboard Login</h2>
+  <div class="login-page">
+    <div class="login-card">
+      <h2>🔐 Threat Intelligence</h2>
+      <p class="subtitle">Secure Access Portal</p>
 
-    <input v-model="username" placeholder="Username" />
-    <input v-model="password" type="password" placeholder="Password" />
+      <div class="input-group">
+        <input v-model="username" placeholder="Username" />
+      </div>
 
-    <button @click="login" :disabled="loading">
-      {{ loading ? "Logging in..." : "Login" }}
-    </button>
+      <div class="input-group">
+        <input v-model="password" type="password" placeholder="Password" />
+      </div>
 
-    <p v-if="error" class="error">{{ error }}</p>
+      <button @click="login" :disabled="loading">
+        <span v-if="!loading">Login</span>
+        <span v-else class="loading">Logging in...</span>
+      </button>
+
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
   </div>
 </template>
 
@@ -58,15 +67,144 @@ const login = async () => {
 </script>
 
 <style>
-.login {
-  max-width: 350px;
-  margin: 100px auto;
+/* =========================
+   BACKGROUND
+   ========================= */
+.login-page {
+  height: 100vh;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  font-family: "Inter", Arial, sans-serif;
 }
 
+/* =========================
+   CARD
+   ========================= */
+.login-card {
+  width: 350px;
+  padding: 40px;
+
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(15px);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.2),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+
+  text-align: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  animation: fadeIn 0.8s ease;
+}
+
+/* TITLE */
+.login-card h2 {
+  margin-bottom: 5px;
+  font-size: 24px;
+  color: #38bdf8;
+}
+
+/* SUBTITLE */
+.subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 25px;
+}
+
+/* =========================
+   INPUT
+   ========================= */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+  border: 1px solid #334155;
+
+  background: #020617;
+  color: #e2e8f0;
+
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+/* =========================
+   BUTTON
+   ========================= */
+button {
+  width: 100%;
+  padding: 12px;
+
+  border-radius: 10px;
+  border: none;
+
+  background: linear-gradient(90deg, #38bdf8, #6366f1);
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ERROR
+   ========================= */
 .error {
-  color: red;
+  margin-top: 10px;
+  color: #f87171;
+  font-size: 13px;
+}
+
+/* =========================
+   LOADING EFFECT
+   ========================= */
+.loading {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* =========================
+   ANIMATION
+   ========================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

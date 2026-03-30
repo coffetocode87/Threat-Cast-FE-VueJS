@@ -1,52 +1,5 @@
-<template>
-  <div class="dashboard">
-    <h1>Threat Intelligence Dashboard</h1>
-
-    <TimeFilter @change="changeTimeRange" />
-
-    
-
-    <!-- SUMMARY CARDS -->
-    <div class="cards">
-      <SummaryCard title="Total Threats" :value="summary.totalThreats" />
-      <SummaryCard title="Today Threats" :value="summary.todayThreats" />
-      <SummaryCard title="Top Threat" :value="summary.topThreatType" />
-      <SummaryCard title="Top Country" :value="summary.topCountry" />
-    </div>
-
-    <!-- CHARTS -->
-    <div class="charts">
-      <div class="chart">
-        <ThreatChart />
-      </div>
-
-      <div class="chart">
-        <PlatformChart />
-      </div>
-
-      <div class="chart">
-        <CountryChart />
-      </div>
-
-      <div class="chart">
-        <TopThreatRulesChart />
-      </div>
-    </div>
-
-    <!-- WORLD MAP -->
-    <div class="chart full-width">
-      <ThreatWorldMap />
-    </div>
-
-    <!-- TABLE -->
-    <div class="table">
-      <RecentThreatTable />
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import api from "../api/axios";
 
 import SummaryCard from "../components/SummaryCard.vue";
@@ -62,11 +15,12 @@ const summary = ref({
   totalThreats: 0,
   todayThreats: 0,
   topThreatType: "-",
-  topCountry: "-"
+  topCountry: "-",
 });
 
 const days = ref(7);
 
+// 🔥 LOAD DASHBOARD
 const loadDashboard = async () => {
   try {
     const { data } = await api.get(`/api/dashboard/summary?days=${days.value}`);
@@ -75,29 +29,75 @@ const loadDashboard = async () => {
       totalThreats: Number(data.totalThreats ?? 0),
       todayThreats: Number(data.todayThreats ?? 0),
       topThreatType: data.topThreatType ?? "-",
-      topCountry: data.topCountry ?? "-"
+      topCountry: data.topCountry ?? "-",
     };
   } catch (err) {
     console.error("ERROR LOAD DASHBOARD:", err);
   }
 };
 
+// 🔥 HANDLE TIME FILTER
 const changeTimeRange = (value) => {
-  days.value = value;
-  loadDashboard();
+  console.log("CHANGE DAYS:", value);
+  days.value = Number(value); // 🔥 pastikan number
 };
 
-let interval = null;
+// 🔥 AUTO RELOAD SAAT DAYS BERUBAH
+watch(days, () => {
+  loadDashboard();
+});
 
+// INIT
 onMounted(() => {
   loadDashboard();
-  // interval = setInterval(loadDashboard, 10000);
-});
-
-onUnmounted(() => {
-  if (interval) clearInterval(interval);
 });
 </script>
+
+<template>
+  <div class="dashboard">
+    <h1>Threat Intelligence Dashboard</h1>
+
+    <!-- 🔥 TIME FILTER -->
+    <TimeFilter @change="changeTimeRange" />
+
+    <!-- SUMMARY -->
+    <div class="cards">
+      <SummaryCard title="Total Threats" :value="summary.totalThreats" />
+      <SummaryCard title="Today Threats" :value="summary.todayThreats" />
+      <SummaryCard title="Top Threat" :value="summary.topThreatType" />
+      <SummaryCard title="Top Country" :value="summary.topCountry" />
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts">
+      <div class="chart">
+        <ThreatChart :days="days" />
+      </div>
+
+      <div class="chart">
+        <PlatformChart :days="days" />
+      </div>
+
+      <div class="chart">
+        <CountryChart :days="days" />
+      </div>
+
+      <div class="chart">
+        <TopThreatRulesChart :days="days" />
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="chart full-width">
+      <ThreatWorldMap :days="days" />
+    </div>
+
+    <!-- TABLE -->
+    <div class="table">
+      <RecentThreatTable :days="days" />
+    </div>
+  </div>
+</template>
 
 <style>
 /* =========================
